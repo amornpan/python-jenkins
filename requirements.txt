@@ -1,0 +1,23 @@
+# Python Calculator App - Dependencies
+# For Jenkins CI/CD Pipeline
+
+# Testing frameworks
+pytest==7.4.3
+pytest-cov==4.1.0
+pytest-html==4.1.1
+
+# Code quality tools
+flake8==6.1.0
+black==23.10.1
+isort==5.12.0
+
+# Security scanning
+bandit==1.7.5
+
+# Optional: Web framework (for future features)
+flask==3.0.0
+gunicorn==21.2.0
+
+# Development tools
+autopep8==2.0.4
+mypy==1.7.1
