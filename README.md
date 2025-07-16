@@ -82,8 +82,8 @@ brew install docker
 ### ขั้นตอนที่ 2: รัน Jenkins Container
 
 ```bash
-# รัน Jenkins ด้วย Docker
-docker run -d --name jenkins -p 8080:8080 -p 50000:50000 -v jenkins-data:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock --restart=unless-stopped jenkins/jenkins:lts
+# รัน Jenkins ด้วย Docker พร้อม timezone UTC+7
+docker stop jenkins && docker rm jenkins && docker run -d --name jenkins -p 8080:8080 -p 50000:50000 -v jenkins-data:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock -e TZ=Asia/Bangkok --restart=unless-stopped jenkins/jenkins:lts
 
 # ตรวจสอบสถานะ
 docker ps | grep jenkins
