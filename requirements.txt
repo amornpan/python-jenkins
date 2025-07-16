@@ -1,23 +1,10 @@
-# Python Calculator App - Dependencies
-# For Jenkins CI/CD Pipeline
+# Basic requirements for Python Calculator
+# Keep it simple for Jenkins CI/CD
 
-# Testing frameworks
-pytest==7.4.3
-pytest-cov==4.1.0
-pytest-html==4.1.1
+# No additional packages needed for basic functionality
+# The app uses only Python standard library
 
-# Code quality tools
-flake8==6.1.0
-black==23.10.1
-isort==5.12.0
-
-# Security scanning
-bandit==1.7.5
-
-# Optional: Web framework (for future features)
-flask==3.0.0
-gunicorn==21.2.0
-
-# Development tools
-autopep8==2.0.4
-mypy==1.7.1
+# Optional: Add packages only if needed
+# pytest==7.4.3
+# black==23.10.1
+# flake8==6.1.0
