@@ -40,6 +40,7 @@ python-jenkins/
 ├── test_app.py            # Unit tests
 ├── requirements.txt       # Python dependencies
 ├── Jenkinsfile           # Jenkins Pipeline configuration
+├── Dockerfile.jenkins    # Docker image สำหรับ Jenkins พร้อม Python
 ├── README.md             # เอกสารนี้
 ├── .gitignore           # ไฟล์ที่ไม่ต้องการใน Git
 ├── run_local.sh         # สคริปต์สำหรับ Linux/Mac
@@ -79,14 +80,43 @@ sudo yum install docker
 brew install docker
 ```
 
-### ขั้นตอนที่ 2: รัน Jenkins Container
+### ขั้นตอนที่ 2: รัน Jenkins Container พร้อม Python
+
+**สร้าง Dockerfile สำหรับ Jenkins ที่มี Python ติดตั้งอยู่:**
+
+สร้างไฟล์ `Dockerfile.jenkins` ใน project directory:
+
+```dockerfile
+# Dockerfile.jenkins
+FROM jenkins/jenkins:lts
+
+# Switch to root user to install packages
+USER root
+
+# Update package list and install Python
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip python3-venv python3-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create symlink for python command
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+# Switch back to jenkins user
+USER jenkins
+```
+
+**รัน Jenkins พร้อม Python และ timezone UTC+7:**
 
 ```bash
-# รัน Jenkins ด้วย Docker พร้อม timezone UTC+7
-docker stop jenkins && docker rm jenkins && docker run -d --name jenkins -p 8080:8080 -p 50000:50000 -v jenkins-data:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock -e TZ=Asia/Bangkok --restart=unless-stopped jenkins/jenkins:lts
+# Stop container เดิม, build image ใหม่, และรัน Jenkins พร้อม Python
+docker stop jenkins && docker rm jenkins && docker build -f Dockerfile.jenkins -t jenkins-python . && docker run -d --name jenkins -p 8080:8080 -p 50000:50000 -v jenkins-data:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock -e TZ=Asia/Bangkok --restart=unless-stopped jenkins-python
 
 # ตรวจสอบสถานะ
 docker ps | grep jenkins
+
+# ตรวจสอบว่า Python ติดตั้งสำเร็จ
+docker exec jenkins python3 --version
 
 # ดูรหัสผ่านแอดมิน
 docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
@@ -117,23 +147,18 @@ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
    - ปกติจะเป็น `http://localhost:8080`
    - คลิก "Save and Finish"
 
-### ขั้นตอนที่ 4: ติดตั้ง Python ใน Jenkins Container
+### ขั้นตอนที่ 4: ตรวจสอบการติดตั้ง Python
+
+หลังจากใช้ Dockerfile ในขั้นตอนที่ 2 Python ควรจะติดตั้งอยู่ใน Jenkins แล้ว แต่หากต้องการติดตั้งเพิ่มเติม สามารถใช้คำสั่งนี้:
 
 ```bash
-# เข้าไปใน Jenkins container
+# ตรวจสอบการติดตั้ง Python ใน Jenkins container
+docker exec jenkins python3 --version
+docker exec jenkins pip3 --version
+
+# หากยังไม่มี Python สามารถใช้คำสั่งนี้เพื่อติดตั้งใน container ที่รันอยู่:
 docker exec -it -u root jenkins bash
-
-# อัพเดต package list
-apt-get update
-
-# ติดตั้ง Python3 และ tools
-apt-get install -y python3 python3-pip python3-venv python3-dev
-
-# ตรวจสอบการติดตั้ง
-python3 --version
-pip3 --version
-
-# ออกจาก container
+apt-get update && apt-get install -y python3 python3-pip python3-venv python3-dev
 exit
 ```
 
@@ -442,9 +467,11 @@ Pipeline Performance:
 
 #### 1. Python ไม่พบใน Jenkins
 ```bash
-# แก้ไข: ติดตั้ง Python ใน Jenkins container
+# แก้ไข: ใช้ Dockerfile.jenkins ตามขั้นตอนที่ 2 แทน
+# หรือติดตั้งเพิ่มเติมใน container ที่รันอยู่:
 docker exec -it -u root jenkins bash
-apt-get update && apt-get install -y python3 python3-pip python3-venv
+apt-get update && apt-get install -y python3 python3-pip python3-venv python3-dev
+exit
 ```
 
 #### 2. Permission Error
