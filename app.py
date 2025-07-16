@@ -40,7 +40,7 @@ def main():
     print("Testing basic operations...")
     
     try:
-        print(f"5 + 3 = {calc.add(5, 3)}")
+        print(f"5 + 4 = {calc.add(5, 4)}")
         print(f"10 - 4 = {calc.subtract(10, 4)}")
         print(f"6 * 7 = {calc.multiply(6, 7)}")
         print(f"15 / 3 = {calc.divide(15, 3)}")
